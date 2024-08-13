@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "toggl_connect"
+description = "A package designed to facilitate easy interaction with Toggl API."
+authors = [{ name = "Tony", email = "cordial.egg1739@fastmail.com" }]
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["one", "two"]
+license = { text = "MIT" }
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = [
+    "requests",
+    "python-dotenv",
+    'importlib-metadata; python_version<"4"',
+]
+dynamic = ["version"]
+
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+release = ["build", "twine"]
+static-code-qa = ["pre-commit"]
+dev = ["py_teamup[test,release,static-code-qa]"]
+
+
+# docs: https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html#dynamic-metadata
+[tool.setuptools.dynamic]
+version = { file = "version.txt" }
+
+[tool.pytest.ini_options]
+markers = [
+    "calls_api: marks test that calls api. (deselect with '-m \"not calls_api\"')",
+]
+
+
+[tool.pylint."messages control"]
+disable = [
+    "line-too-long",
+    "trailing-whitespace",
+    "missing-function-docstring",
+    "consider-using-f-string",
+    "import-error",
+    "too-few-public-methods",
+    "redefined-outer-name",
+]
+
+[tool.ruff]
+# Enable flake8-bugbear (`B`) rules.
+lint.select = [
+    "B",   # flake8-bugbear
+    "E",   # pycodestyle error
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "W",   # pycodestyle warning
+    "ERA", # eradicate
+    "D",   # pydocstyle
+]
+
+# Never enforce `E501` (line length violations).
+lint.ignore = ["E501", "F401"]
+
+# Avoid trying to fix flake8-bugbear (`B`) violations.
+lint.unfixable = ["B"]
+line-length = 99
+
+lint.pydocstyle.convention = "google"
+
+# Ruff supports a top-level `src` option in lieu of isort's `src_paths` setting.
+# All paths are relative to the project root, which is the directory containing the pyproject.toml.
+src = ["src"]
+
+# Ignore `E402` (import violations) in all `__init__.py` files, and in `path/to/file.py`.
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"path/to/file.py" = ["E402"]
+
+
+[tool.pyright]
+# tell pyright where the virtual environment is
+venvPath = "."
+venv = ".venv"
+
+[tool.mypy]
+ignore_missing_imports = true
