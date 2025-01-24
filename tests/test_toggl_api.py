@@ -16,7 +16,7 @@ class TestTogglProjectAPI(unittest.TestCase):
         mock_get.return_value = [{"name": "Project1", "id": 1}, {"name": "Project2", "id": 2}]
 
         workspace_id = 12345
-        projects = api._get_projects(workspace_id)
+        projects = api._set_class_projects(workspace_id)
 
         expected_projects = {
             "Project1": {"name": "Project1", "id": 1},

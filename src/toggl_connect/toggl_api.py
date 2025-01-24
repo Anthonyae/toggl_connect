@@ -21,7 +21,7 @@ class BaseAPI:
 
     def __init__(self):
         """Initialize the BaseAPI class.
-        
+
         Initiates with a workspace_id for the default workspace in environment variables.
         """
         self.__api_auth: bytes = API_AUTH
@@ -29,9 +29,9 @@ class BaseAPI:
             workspace_name=TOGGL_HOME_WORKSPACE_NAME
         )
 
-    def _get(self, endpoint: str, data: None=None) -> list[dict]:
+    def _get(self, endpoint: str, data: None = None) -> list[dict]:
         """Submits get request to toggl and specified endpoint.
-        
+
         Returns: A list of dictionaries from the response.
         """
         request_string = f"{self._BASE_URL}{endpoint}"
@@ -39,7 +39,7 @@ class BaseAPI:
             request_string,
             headers={
                 "content-type": "application/json",
-                "Authorization": f'Basic {b64encode(self.__api_auth).decode("ascii")}',
+                "Authorization": f"Basic {b64encode(self.__api_auth).decode('ascii')}",
             },
             params=data,
             timeout=10,
@@ -55,7 +55,7 @@ class BaseAPI:
             request_string,
             headers={
                 "content-type": "application/json",
-                "Authorization": f'Basic {b64encode(self.__api_auth).decode("ascii")}',
+                "Authorization": f"Basic {b64encode(self.__api_auth).decode('ascii')}",
             },
             timeout=15,
             json=data,
@@ -66,32 +66,33 @@ class BaseAPI:
 
     def get_workspace_id_from_name(self, workspace_name: str) -> int:
         """Gets a workspace_id for the given workspace_name in toggl.
-        
+
         Returns: workspace_id or error if workspace_id is not found.
         """
         workspace_objects = self._get("me/workspaces")
         workspace_id = None
         for workspace in workspace_objects:
             if workspace.get("name") == workspace_name:
-                workspace_id = int(workspace.get("id")) # type: ignore
+                workspace_id = int(workspace.get("id"))  # type: ignore
                 break
         if workspace_id:
             return workspace_id
         else:
             raise ValueError(f"Workspace with name {workspace_name} not found.")
 
+
 class TogglProjectAPI(BaseAPI):
     """Class for interacting with projects from Toggl.
-    
+
     This class provides methods for creating projects, looking up project_ids, and creating time entries.
-    
+
     Attributes:
         projects (list): A list of project dictionaries from the default workspace.
     """
 
     def __init__(self):
         """Initializes a new instance of the TogglApi class.
-        
+
         Note: This will initialize with your projects from your workspace in your env file.
         """
         super().__init__()
@@ -124,7 +125,7 @@ class TogglProjectAPI(BaseAPI):
         Note:
             This will initialize with your default workspace_id. Call this
             again to change the projects associated with the class instance.
-            
+
         Returns:
             Dictionary of projects with project name as the key and project object as the value.
         """
@@ -136,7 +137,7 @@ class TogglProjectAPI(BaseAPI):
         self.projects = toggl_projects
         return self.projects
 
-    def lookup_project_id_by_name(self, project_name: str) -> int|None:
+    def lookup_project_id_by_name(self, project_name: str) -> int | None:
         """Returns Toggle project_id based on project_name provided.
 
         Returns:
@@ -147,12 +148,16 @@ class TogglProjectAPI(BaseAPI):
         return project_id
 
     def create_generic_project(
-        self, project_name: str, color:str|None=None, is_kpi=False, workspace_id: int|None = None
+        self,
+        project_name: str,
+        color: str | None = None,
+        is_kpi=False,
+        workspace_id: int | None = None,
     ) -> dict:
         """Creates a project in toggl with the given project_name for the given workspace.
 
         Note: If no workspace is given then uses default workspace_id stored in the class.
-        
+
         Colors: (optional)
         -     colors = {
                 "blue": "#0b83d9",
@@ -215,9 +220,10 @@ class TogglProjectAPI(BaseAPI):
             - inclusive to exclusive dates
         - params = {'since': 1713899346983}
             - UNIX timestamp, modified entries since UNIX, including deleted ones
+        - params = meta=True - include meta information for entries
         """
-        time_entries = self._get("me/time_entries", params) # type: ignore
-        return time_entries # type: ignore
+        time_entries = self._get("me/time_entries", params)  # type: ignore
+        return time_entries  # type: ignore
 
     def create_toggl_time_entry(
         self,
@@ -226,7 +232,7 @@ class TogglProjectAPI(BaseAPI):
         start_at: datetime.datetime,
         description: str = "No description",
         tags: list[str] = [],
-        workspace_id: int|None = None,
+        workspace_id: int | None = None,
     ) -> dict:
         """Creates Toggl time entries.
 
@@ -259,11 +265,11 @@ class TogglProjectAPI(BaseAPI):
         time_entry_response = self._post(time_entry_url, toggl_time_entry_template)
         return time_entry_response
 
-    def get_tags(self, workspace_id: int|None=None) -> dict:
+    def get_tags(self, workspace_id: int | None = None) -> dict:
         """Get tags for a given workspace_id.
-        
+
         Note: Uses default workspace_id if none is provided.
-        
+
         Returns: Dictionary of tags with tag name as the key and tag object as the value.
         """
         if not workspace_id:
@@ -275,19 +281,21 @@ class TogglProjectAPI(BaseAPI):
             tag_name = tag.get("name")
             tags[tag_name] = tag
         return tags
-    
-    def delete_tags(self, tags: list[str], workspace_id: int|None=None) -> dict:
+
+    def delete_tags(self, tags: list[str], workspace_id: int | None = None) -> dict:
         """Delete tags for a given workspace_id.
-        
+
         Note: Uses default workspace_id if none is provided.
         """
         if not workspace_id:
             workspace_id = self._default_workspace_id
-            
+
         tags_by_name = self.get_tags(workspace_id)
         tags_response = {}
         for tag_name, tag_obj in tags_by_name.items():
             if tag_name in tags:
-                response = requests.delete(self._BASE_URL + "workspaces/{workspace_id}/tags/{tag_obj['id']}")
+                response = requests.delete(
+                    self._BASE_URL + "workspaces/{workspace_id}/tags/{tag_obj['id']}"
+                )
                 tags_response[tag_name] = response
         return tags_response

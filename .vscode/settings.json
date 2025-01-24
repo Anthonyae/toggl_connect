@@ -29,16 +29,6 @@
     "python.analysis.indexing": true,
     "python.languageServer": "Pylance",
     "python.analysis.completeFunctionParens": true,
-    "editor.rulers": [
-        {
-            "column": 99,
-            "color": "#dad9c2"
-        },
-        {
-            "column": 119,
-            "color": "#d1a7ae"
-        }
-    ],
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
